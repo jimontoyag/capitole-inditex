@@ -46,20 +46,17 @@ public class InventoryCSVRepository implements InventoryRepository {
 
   @Override
   public Inventory loadInventory() {
-    var productsCsv = productParser.parse();
-    var sizesCsv = sizeParser.parse();
-    var stockCsv = stockParser.parse();
 
     var productsMap =
-        productsCsv.stream()
+        productParser.stream()
             .map(this::mapProduct)
             .collect(Collectors.toMap(Product::id, Function.identity()));
 
     var stockMap =
-        stockCsv.stream().collect(Collectors.toMap(StockCSV::getSizeId, StockCSV::getQuantity));
+        stockParser.stream().collect(Collectors.toMap(StockCSV::getSizeId, StockCSV::getQuantity));
 
     return new Inventory(
-        sizesCsv.stream()
+        sizeParser.stream()
             .reduce(
                 productsMap,
                 (pMap, size) -> insertSize(pMap, size, stockMap),
